@@ -1,0 +1,10 @@
+flask
+flask-cors
+pandas
+numpy
+tensorflow
+keras
+deap
+nltk
+requests
+openai

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Churn Prediction & Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: radial-gradient(circle, #0f172a, #020617);
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 183, 255, 0.5);
+        }
+        input, label {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex items-center justify-center min-h-screen">
+        <div class="glass w-96 p-6">
+            <h2 class="text-xl font-bold text-center">🔮 Customer Churn Prediction</h2>
+            <form id="churnForm" class="mt-4">
+                <label>Monthly Charges</label>
+                <input type="number" id="monthlyCharges" class="w-full p-2 rounded bg-gray-800 text-white" required>
+                
+                <label>Total Charges</label>
+                <input type="number" id="totalCharges" class="w-full p-2 rounded bg-gray-800 text-white" required>
+                
+                <label>Tenure</label>
+                <input type="number" id="tenure" class="w-full p-2 rounded bg-gray-800 text-white" required>
+                
+                <h4 class="mt-2 font-semibold">Contract Type</h4>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="Contract_OneYear"> One Year</label>
+                    <label><input type="checkbox" id="Contract_TwoYear"> Two Year</label>
+                </div>
+
+                <h4 class="mt-2 font-semibold">Payment Method</h4>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="PaymentMethod_CreditCard"> Credit Card (Auto)</label>
+                    <label><input type="checkbox" id="PaymentMethod_ElectronicCheck"> Electronic Check</label>
+                    <label><input type="checkbox" id="PaymentMethod_MailedCheck"> Mailed Check</label>
+                </div>
+
+                <button type="submit" class="mt-4 w-full bg-blue-500 p-2 rounded text-white font-bold">Predict</button>
+            </form>
+            <div id="result" class="mt-4 text-center font-bold text-lg"></div>
+
+            <h2 class="text-xl font-bold text-center mt-8">🤖 AI Chatbot</h2>
+            <textarea id="chatInput" class="w-full p-2 rounded bg-gray-800 text-white mt-2"></textarea>
+            <button onclick="sendMessage()" class="mt-2 w-full bg-green-500 p-2 rounded text-white font-bold">Ask AI</button>
+            <div id="chatResponse" class="mt-4 text-center font-bold text-lg"></div>
+        </div>
+    </div>
+    
+   <script>
+    document.getElementById("churnForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        let data = {
+            MonthlyCharges: document.getElementById("monthlyCharges").value,
+            TotalCharges: document.getElementById("totalCharges").value,
+            tenure: document.getElementById("tenure").value,
+            Contract_OneYear: document.getElementById("Contract_OneYear").checked ? 1 : 0,
+            Contract_TwoYear: document.getElementById("Contract_TwoYear").checked ? 1 : 0,
+            PaymentMethod_CreditCard: document.getElementById("PaymentMethod_CreditCard").checked ? 1 : 0,
+            PaymentMethod_ElectronicCheck: document.getElementById("PaymentMethod_ElectronicCheck").checked ? 1 : 0,
+            PaymentMethod_MailedCheck: document.getElementById("PaymentMethod_MailedCheck").checked ? 1 : 0
+        };
+
+        let response = await fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        let result = await response.json();
+        document.getElementById("result").innerHTML = `<p class="text-xl font-bold">${result.Prediction} - ${result["Churn Probability"]}</p>`;
+    });
+
+    async function sendMessage() {
+        let userInput = document.getElementById("chatInput").value;
+
+        let response = await fetch("/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: userInput })
+        });
+
+        let result = await response.json();
+        document.getElementById("chatResponse").innerText = result.response;
+    }
+   </script>
+
+</body>
+</html>
